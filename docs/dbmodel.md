@@ -2,6 +2,8 @@
 
 Five core entities, derived from the user stories and endpoints in [specification.md](./specification.md). Every `Account` and `Resource` carries a direct `userId` so per-rep data isolation can be enforced with a single `WHERE` clause; `Contact`, `Task`, and `Note` inherit isolation through their parent `Account`.
 
+![BDR CRM entity relationship diagram](./erd.png)
+
 ```mermaid
 erDiagram
     USER ||--o{ ACCOUNT : owns
