@@ -19,4 +19,11 @@ describe('AppController', () => {
       expect(appController.getHello()).toBe('Hello World!');
     });
   });
+
+  describe('me', () => {
+    it('should return the authenticated Clerk user', () => {
+      const user = { id: 'user_123' };
+      expect(appController.getMe(user)).toBe(user);
+    });
+  });
 });
