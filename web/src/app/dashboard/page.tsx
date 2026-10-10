@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 import AccountList from '@/components/account-list';
 import { mockAccounts, mockTasks } from '@/lib/mock-data';
@@ -45,7 +46,15 @@ export default async function DashboardPage() {
           : 'Could not verify your session with the API.'}
       </p>
       <section className="mt-6">
-        <h2 className="mb-3 text-lg font-medium text-slate-900">Accounts</h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-medium text-slate-900">Accounts</h2>
+          <Link
+            href="/dashboard/new"
+            className="rounded-lg bg-teal-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-teal-700"
+          >
+            New account
+          </Link>
+        </div>
         <AccountList accounts={accounts} />
       </section>
       <section className="mt-6">
