@@ -1,4 +1,8 @@
 import { auth } from '@clerk/nextjs/server';
+import AccountList from '@/components/account-list';
+import { mockAccounts, mockTasks } from '@/lib/mock-data';
+import TaskList from '@/components/task-list';
+import { getUpcomingTasks } from '@/lib/tasks';
 
 interface Me {
   id: string;
@@ -6,16 +10,20 @@ interface Me {
 }
 
 async function fetchMe(token: string): Promise<Me | null> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/me`, {
-    headers: { Authorization: `Bearer ${token}` },
-    cache: 'no-store',
-  });
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
 
-  if (!res.ok) {
+    if (!res.ok) {
+      return null;
+    }
+
+    return (await res.json()) as Me;
+  } catch {
     return null;
   }
-
-  return res.json() as Promise<Me>;
 }
 
 export default async function DashboardPage() {
@@ -23,6 +31,9 @@ export default async function DashboardPage() {
   const { getToken } = await auth();
   const token = await getToken();
   const me = token ? await fetchMe(token) : null;
+  // TODO: replace mock data with fetchAccounts(token) once the endpoint exists
+  const accounts = mockAccounts;
+  const upcomingTasks = getUpcomingTasks(mockTasks);
 
   return (
     <main className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
@@ -33,6 +44,16 @@ export default async function DashboardPage() {
           ? `API confirms you as Clerk user ${me.id}.`
           : 'Could not verify your session with the API.'}
       </p>
+      <section className="mt-6">
+        <h2 className="mb-3 text-lg font-medium text-slate-900">Accounts</h2>
+        <AccountList accounts={accounts} />
+      </section>
+      <section className="mt-6">
+        <h2 className="mb-3 text-lg font-medium text-slate-900">
+          Upcoming follow-ups
+        </h2>
+        <TaskList tasks={upcomingTasks} />
+      </section>
     </main>
   );
 }
