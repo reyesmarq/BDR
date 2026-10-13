@@ -49,4 +49,41 @@ describe('AccountsService', () => {
       },
     });
   });
+  it('finds an account only through the signed-in rep clerk id', async () => {
+    const found = { id: 'a1', name: 'Acme Robotics' };
+    const findFirst = vi.fn().mockResolvedValue(found);
+    const prisma = { account: { findFirst } } as unknown as PrismaService;
+    const users = {} as unknown as UsersService;
+
+    const service = new AccountsService(prisma, users);
+    const result = await service.findOne({ id: 'user_123' }, 'a1');
+
+    expect(findFirst).toHaveBeenCalledWith({
+      where: { id: 'a1', user: { clerkId: 'user_123' } },
+      include: {
+        contacts: true,
+        tasks: { orderBy: { dueDate: 'asc' } },
+        notes: { orderBy: { createdAt: 'desc' } },
+      },
+    });
+    expect(result).toBe(found);
+  });
+  it('returns null when the account is not owned by the signed-in rep', async () => {
+    const findFirst = vi.fn().mockResolvedValue(null);
+    const prisma = { account: { findFirst } } as unknown as PrismaService;
+    const users = {} as unknown as UsersService;
+
+    const service = new AccountsService(prisma, users);
+    const result = await service.findOne(
+      { id: 'user_123' },
+      'other-rep-account',
+    );
+
+    expect(findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'other-rep-account', user: { clerkId: 'user_123' } },
+      }),
+    );
+    expect(result).toBeNull();
+  });
 });
