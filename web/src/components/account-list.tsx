@@ -1,4 +1,5 @@
 import type { Account } from '@/types/crm';
+import Link from 'next/link';
 
 type AccountListProps = {
   accounts: Account[];
@@ -19,7 +20,12 @@ export default function AccountList({ accounts }: AccountListProps) {
           key={account.id}
           className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4"
         >
-          <p className="font-medium text-slate-900">{account.name}</p>
+          <Link
+            href={`/dashboard/accounts/${account.id}`}
+            className="font-medium text-slate-900 hover:text-teal-700"
+          >
+            {account.name}
+          </Link>
           <span className="rounded-full bg-teal-50 px-2 py-0.5 text-xs text-teal-700">
             {account.status}
           </span>

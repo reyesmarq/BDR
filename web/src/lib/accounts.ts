@@ -1,5 +1,4 @@
-import type { Account } from '@/types/crm';
-
+import type { Account, AccountDetail } from '@/types/crm';
 export type CreateAccountInput = {
   name: string;
   status?: string;
@@ -31,4 +30,27 @@ export async function createAccount(
   }
 
   return (await res.json()) as Account;
+}
+
+export async function getAccount(
+  token: string,
+  id: string,
+): Promise<AccountDetail | null> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/accounts/${encodeURIComponent(id)}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    },
+  );
+
+  if (res.status === 404) {
+    return null;
+  }
+
+  if (!res.ok) {
+    throw new Error('Failed to load account');
+  }
+
+  return (await res.json()) as AccountDetail;
 }
