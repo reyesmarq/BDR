@@ -32,6 +32,19 @@ export async function createAccount(
   return (await res.json()) as Account;
 }
 
+export async function getAccounts(token: string): Promise<Account[]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/accounts`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to load accounts');
+  }
+
+  return (await res.json()) as Account[];
+}
+
 export async function getAccount(
   token: string,
   id: string,
