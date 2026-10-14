@@ -4,6 +4,7 @@ import { UsersService } from '../users/users.service.js';
 import type { ClerkUser } from '../auth/clerk-user.js';
 import type { Account } from '@prisma/client';
 import type { CreateAccountDto } from './dto/create-account.dto.js';
+import type { UpdateAccountDto } from './dto/update-account.dto.js';
 
 @Injectable()
 export class AccountsService {
@@ -38,6 +39,28 @@ export class AccountsService {
         contacts: true,
         tasks: { orderBy: { dueDate: 'asc' } },
         notes: { orderBy: { createdAt: 'desc' } },
+      },
+    });
+  }
+
+  async update(
+    clerkUser: ClerkUser,
+    id: string,
+    dto: UpdateAccountDto,
+  ): Promise<Account | null> {
+    const owned = await this.prisma.account.findFirst({
+      where: { id, user: { clerkId: clerkUser.id } },
+      select: { id: true },
+    });
+    if (!owned) {
+      return null;
+    }
+
+    return this.prisma.account.update({
+      where: { id },
+      data: {
+        ...(dto.name !== undefined && { name: dto.name }),
+        ...(dto.status !== undefined && { status: dto.status }),
       },
     });
   }

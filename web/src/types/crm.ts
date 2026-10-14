@@ -42,3 +42,14 @@ export type AccountDetail = Account & {
   tasks: Task[];
   notes: Note[];
 };
+
+export type ResourceType = 'email_template' | 'call_script';
+
+export type Resource = {
+  id: string;
+  userId: string;
+  title: string;
+  type: ResourceType;
+  content: string;
+  createdAt: string;
+};

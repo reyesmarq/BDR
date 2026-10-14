@@ -4,6 +4,27 @@ export type CreateAccountInput = {
   status?: string;
 };
 
+export type UpdateAccountInput = Partial<CreateAccountInput>;
+
+async function parseAccountResponse(
+  res: Response,
+  fallback: string,
+): Promise<Account> {
+  if (!res.ok) {
+    const body: unknown = await res.json().catch(() => null);
+    const message =
+      body &&
+      typeof body === 'object' &&
+      'message' in body &&
+      typeof body.message === 'string'
+        ? body.message
+        : fallback;
+    throw new Error(message);
+  }
+
+  return (await res.json()) as Account;
+}
+
 export async function createAccount(
   token: string,
   input: CreateAccountInput,
@@ -17,19 +38,27 @@ export async function createAccount(
     body: JSON.stringify(input),
   });
 
-  if (!res.ok) {
-    const body: unknown = await res.json().catch(() => null);
-    const message =
-      body &&
-      typeof body === 'object' &&
-      'message' in body &&
-      typeof body.message === 'string'
-        ? body.message
-        : 'Failed to create account';
-    throw new Error(message);
-  }
+  return parseAccountResponse(res, 'Failed to create account');
+}
 
-  return (await res.json()) as Account;
+export async function updateAccount(
+  token: string,
+  id: string,
+  input: UpdateAccountInput,
+): Promise<Account> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/accounts/${encodeURIComponent(id)}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return parseAccountResponse(res, 'Failed to update account');
 }
 
 export async function getAccounts(token: string): Promise<Account[]> {

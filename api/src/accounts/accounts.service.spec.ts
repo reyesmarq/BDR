@@ -102,4 +102,53 @@ describe('AccountsService', () => {
     );
     expect(result).toBeNull();
   });
+
+  it('updates an owned account with the provided fields', async () => {
+    const findFirst = vi.fn().mockResolvedValue({ id: 'a1' });
+    const updated = {
+      id: 'a1',
+      name: 'Acme Robotics Inc.',
+      status: 'contacted',
+    };
+    const update = vi.fn().mockResolvedValue(updated);
+    const prisma = {
+      account: { findFirst, update },
+    } as unknown as PrismaService;
+    const users = {} as unknown as UsersService;
+
+    const service = new AccountsService(prisma, users);
+    const result = await service.update({ id: 'user_123' }, 'a1', {
+      name: 'Acme Robotics Inc.',
+      status: 'contacted',
+    });
+
+    expect(findFirst).toHaveBeenCalledWith({
+      where: { id: 'a1', user: { clerkId: 'user_123' } },
+      select: { id: true },
+    });
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'a1' },
+      data: { name: 'Acme Robotics Inc.', status: 'contacted' },
+    });
+    expect(result).toBe(updated);
+  });
+
+  it('returns null when updating an account the rep does not own', async () => {
+    const findFirst = vi.fn().mockResolvedValue(null);
+    const update = vi.fn();
+    const prisma = {
+      account: { findFirst, update },
+    } as unknown as PrismaService;
+    const users = {} as unknown as UsersService;
+
+    const service = new AccountsService(prisma, users);
+    const result = await service.update(
+      { id: 'user_123' },
+      'other-rep-account',
+      { name: 'New name' },
+    );
+
+    expect(update).not.toHaveBeenCalled();
+    expect(result).toBeNull();
+  });
 });

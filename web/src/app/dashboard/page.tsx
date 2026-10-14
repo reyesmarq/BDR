@@ -38,7 +38,15 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-      <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
+        <Link
+          href="/dashboard/resources"
+          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Resources
+        </Link>
+      </div>
       <p className="mt-2 text-slate-600">Signed-in reps only.</p>
       <p className="mt-4 text-sm text-slate-500">
         {me
