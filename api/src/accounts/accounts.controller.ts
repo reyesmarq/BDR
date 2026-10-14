@@ -1,4 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import type { ClerkUser } from '../auth/clerk-user.js';
 import type { Account } from '@prisma/client';
@@ -15,5 +22,14 @@ export class AccountsController {
     @Body() dto: CreateAccountDto,
   ): Promise<Account> {
     return this.accountsService.create(user, dto);
+  }
+
+  @Get(':id')
+  async findOne(@CurrentUser() user: ClerkUser, @Param('id') id: string) {
+    const account = await this.accountsService.findOne(user, id);
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+    return account;
   }
 }

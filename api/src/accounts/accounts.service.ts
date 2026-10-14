@@ -23,4 +23,15 @@ export class AccountsService {
       },
     });
   }
+
+  async findOne(clerkUser: ClerkUser, id: string) {
+    return this.prisma.account.findFirst({
+      where: { id, user: { clerkId: clerkUser.id } },
+      include: {
+        contacts: true,
+        tasks: { orderBy: { dueDate: 'asc' } },
+        notes: { orderBy: { createdAt: 'desc' } },
+      },
+    });
+  }
 }

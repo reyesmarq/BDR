@@ -19,3 +19,26 @@ export type Task = {
   completedAt: string | null;
   createdAt: string;
 };
+
+export type Contact = {
+  id: string;
+  accountId: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  title: string | null;
+};
+
+export type Note = {
+  id: string;
+  accountId: string;
+  authorId: string;
+  body: string;
+  createdAt: string;
+};
+
+export type AccountDetail = Account & {
+  contacts: Contact[];
+  tasks: Task[];
+  notes: Note[];
+};
