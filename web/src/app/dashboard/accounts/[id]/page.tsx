@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
 import ContactList from '@/components/contact-list';
 import { getAccount } from '@/lib/accounts';
+import NewTaskForm from '@/components/new-task-form';
 import NoteList from '@/components/note-list';
 import TaskList from '@/components/task-list';
 import { getUpcomingTasks } from '@/lib/tasks';
@@ -45,6 +46,7 @@ export default async function AccountDetailPage({
         <h2 className="mb-3 text-lg font-medium text-slate-900">
           Open follow-ups
         </h2>
+        <NewTaskForm accountId={account.id} />
         <TaskList tasks={openTasks} />
       </section>
       <section className="mt-6">
