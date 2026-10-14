@@ -5,6 +5,7 @@ import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { AccountsModule } from './accounts/accounts.module.js';
+import { TasksModule } from './tasks/tasks.module.js';
 import { ResourcesModule } from './resources/resources.module.js';
 
 @Module({
@@ -13,6 +14,7 @@ import { ResourcesModule } from './resources/resources.module.js';
     AuthModule,
     PrismaModule,
     AccountsModule,
+    TasksModule,
     ResourcesModule,
   ],
   controllers: [AppController],

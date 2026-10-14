@@ -1,4 +1,5 @@
 import type { Task } from '@/types/crm';
+import TaskItem from './task-item';
 
 type TaskListProps = {
   tasks: Task[];
@@ -15,19 +16,7 @@ export default function TaskList({ tasks }: TaskListProps) {
   return (
     <ul className="space-y-3">
       {tasks.map((task) => (
-        <li
-          key={task.id}
-          className="rounded-lg border border-slate-200 bg-white p-4"
-        >
-          <p className="font-medium text-slate-900">{task.title}</p>
-          <p className="text-sm text-slate-600">
-            Due{' '}
-            {new Date(task.dueDate).toLocaleDateString('en-US', {
-              dateStyle: 'medium',
-              timeZone: 'UTC',
-            })}
-          </p>
-        </li>
+        <TaskItem key={task.id} task={task} />
       ))}
     </ul>
   );
