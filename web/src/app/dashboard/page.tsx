@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
-import AccountList from '@/components/account-list';
-import { mockAccounts, mockTasks } from '@/lib/mock-data';
+import AccountsFilter from '@/components/accounts-filter';
+import { getAccounts } from '@/lib/accounts';
+import { mockTasks } from '@/lib/mock-data';
 import TaskList from '@/components/task-list';
 import { getUpcomingTasks } from '@/lib/tasks';
 
@@ -32,8 +33,7 @@ export default async function DashboardPage() {
   const { getToken } = await auth();
   const token = await getToken();
   const me = token ? await fetchMe(token) : null;
-  // TODO: replace mock data with fetchAccounts(token) once the endpoint exists
-  const accounts = mockAccounts;
+  const accounts = token ? await getAccounts(token) : [];
   const upcomingTasks = getUpcomingTasks(mockTasks);
 
   return (
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
             New account
           </Link>
         </div>
-        <AccountList accounts={accounts} />
+        <AccountsFilter accounts={accounts} />
       </section>
       <section className="mt-6">
         <h2 className="mb-3 text-lg font-medium text-slate-900">

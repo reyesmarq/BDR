@@ -49,6 +49,22 @@ describe('AccountsService', () => {
       },
     });
   });
+  it('lists accounts only for the signed-in rep, ordered by name', async () => {
+    const found = [{ id: 'a1' }, { id: 'a2' }];
+    const findMany = vi.fn().mockResolvedValue(found);
+    const prisma = { account: { findMany } } as unknown as PrismaService;
+    const users = {} as unknown as UsersService;
+
+    const service = new AccountsService(prisma, users);
+    const result = await service.findAll({ id: 'user_123' });
+
+    expect(findMany).toHaveBeenCalledWith({
+      where: { user: { clerkId: 'user_123' } },
+      orderBy: { name: 'asc' },
+    });
+    expect(result).toBe(found);
+  });
+
   it('finds an account only through the signed-in rep clerk id', async () => {
     const found = { id: 'a1', name: 'Acme Robotics' };
     const findFirst = vi.fn().mockResolvedValue(found);

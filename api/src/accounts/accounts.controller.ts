@@ -26,6 +26,11 @@ export class AccountsController {
     return this.accountsService.create(user, dto);
   }
 
+  @Get()
+  findAll(@CurrentUser() user: ClerkUser): Promise<Account[]> {
+    return this.accountsService.findAll(user);
+  }
+
   @Get(':id')
   async findOne(@CurrentUser() user: ClerkUser, @Param('id') id: string) {
     const account = await this.accountsService.findOne(user, id);

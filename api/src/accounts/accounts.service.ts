@@ -25,6 +25,13 @@ export class AccountsService {
     });
   }
 
+  findAll(clerkUser: ClerkUser): Promise<Account[]> {
+    return this.prisma.account.findMany({
+      where: { user: { clerkId: clerkUser.id } },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   async findOne(clerkUser: ClerkUser, id: string) {
     return this.prisma.account.findFirst({
       where: { id, user: { clerkId: clerkUser.id } },

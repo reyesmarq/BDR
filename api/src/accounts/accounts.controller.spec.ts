@@ -20,6 +20,17 @@ describe('AccountsController', () => {
     expect(create).toHaveBeenCalledWith(user, dto);
   });
 
+  it('delegates listing accounts to the service for the current user', async () => {
+    const user = { id: 'user_123' };
+    const found = [{ id: 'a1' }];
+    const findAll = vi.fn().mockResolvedValue(found);
+    const accountsService = { findAll } as unknown as AccountsService;
+    const controller = new AccountsController(accountsService);
+
+    await expect(controller.findAll(user)).resolves.toBe(found);
+    expect(findAll).toHaveBeenCalledWith(user);
+  });
+
   it('delegates account updates to the service for the current user', async () => {
     const user = { id: 'user_123' };
     const dto = { name: 'Acme Robotics Inc.' };
