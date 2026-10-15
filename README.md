@@ -89,18 +89,18 @@ All routes except `GET /` require a valid Clerk-issued `Authorization: Bearer <J
 | POST | `/accounts` | Create an account (`name`, optional `status`) |
 | GET | `/accounts/:id` | Get one account with its contacts, tasks, and notes |
 | PATCH | `/accounts/:id` | Update an account's `name` and/or `status` |
+| DELETE | `/accounts/:id` | Soft-delete an account (sets `status` to `archived`; excluded from `GET /accounts` and `GET /tasks` from then on) |
 | POST | `/accounts/:accountId/tasks` | Create a follow-up task on an account (`title`, `dueDate`, optional `description`) |
 | PATCH | `/accounts/:accountId/tasks/:taskId` | Update a task's `title`, `dueDate`, and/or `description` |
 | PATCH | `/accounts/:accountId/tasks/:taskId/complete` | Mark a task complete (sets `status` and `completedAt`) |
+| GET | `/tasks` | List all of the signed-in rep's tasks across their (non-archived) accounts, with each account's name attached — powers the dashboard's upcoming follow-ups |
 | GET | `/resources` | List the signed-in rep's saved resources |
 | POST | `/resources` | Save a resource (`title`, `type`: `email_template` \| `call_script`, `content`) |
 
 ## Known issues and opportunities
 
-- **No delete operation** exists yet for any model (accounts, tasks, or resources). The next logical addition is a soft delete on accounts (an `archived` status) and a hard delete on tasks.
+- **Delete is implemented for accounts only** (a soft delete — `status` becomes `archived`). Tasks and resources don't have a delete action yet; a hard delete on tasks is the next logical addition.
 - **Contacts and notes are read-only.** The data model and detail-page UI support them, but there's no create/edit form yet — the seeded demo data was added directly through Prisma. Adding a note-creation form is a natural next step.
-- **The dashboard's account list** uses live data and supports search/filter by name and status; the "Upcoming follow-ups" section on the same page is still backed by placeholder data and isn't wired to the signed-in rep's real tasks yet.
-- **The public homepage (`/`)** hasn't been customized from the Next.js starter template yet — signed-in users are unaffected, since every real view lives under `/dashboard`.
 - **Clerk is running on development keys** in production, which shows a "Development mode" badge to users and applies stricter bot-protection than a production instance would. Functionally everything still works; it's a polish item before this would be a real public product.
 
 ## Issue history

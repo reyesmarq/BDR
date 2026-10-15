@@ -22,8 +22,9 @@ This account is pre-seeded with 3 accounts in different pipeline stages, contact
 4. **Create a follow-up task** on that account (title + due date), then **mark it complete** and watch it drop off the open list.
 5. **Click "Edit"** on the account header and change its status.
 6. **Go to Resources** (top-right of the dashboard) to see the two saved templates, and save a new one.
-7. **Sign out**, then try visiting `/dashboard` directly — confirms the route is actually protected, not just hidden in the nav.
-8. Optional: **sign up for a brand-new account** to see the empty-state dashboard, or try opening another rep's account URL directly (e.g. by guessing an ID) to confirm it 404s instead of leaking data.
+7. **Create a new account** (e.g. "Test Co") from the dashboard, open it, click **"Delete"**, confirm — it disappears from the accounts list and from the dashboard's follow-up list if it had any open tasks. This is a soft delete (the record is archived, not destroyed).
+8. **Sign out**, then try visiting `/dashboard` directly — confirms the route is actually protected, not just hidden in the nav.
+9. Optional: **sign up for a brand-new account** to see the empty-state dashboard, or try opening another rep's account URL directly (e.g. by guessing an ID) to confirm it 404s instead of leaking data.
 
 ## Running it locally instead
 
