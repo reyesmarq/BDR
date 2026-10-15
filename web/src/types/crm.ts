@@ -37,6 +37,8 @@ export type Note = {
   createdAt: string;
 };
 
+export type TaskWithAccount = Task & { account: { name: string } };
+
 export type AccountDetail = Account & {
   contacts: Contact[];
   tasks: Task[];

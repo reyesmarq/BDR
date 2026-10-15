@@ -54,4 +54,25 @@ describe('AccountsController', () => {
       }),
     ).rejects.toThrow(NotFoundException);
   });
+
+  it('delegates account archiving to the service for the current user', async () => {
+    const user = { id: 'user_123' };
+    const archived = { id: 'a1', status: 'archived' };
+    const archive = vi.fn().mockResolvedValue(archived);
+    const accountsService = { archive } as unknown as AccountsService;
+    const controller = new AccountsController(accountsService);
+
+    await expect(controller.archive(user, 'a1')).resolves.toBe(archived);
+    expect(archive).toHaveBeenCalledWith(user, 'a1');
+  });
+
+  it('404s when archiving an account the rep does not own', async () => {
+    const archive = vi.fn().mockResolvedValue(null);
+    const accountsService = { archive } as unknown as AccountsService;
+    const controller = new AccountsController(accountsService);
+
+    await expect(
+      controller.archive({ id: 'user_123' }, 'other-rep-account'),
+    ).rejects.toThrow(NotFoundException);
+  });
 });

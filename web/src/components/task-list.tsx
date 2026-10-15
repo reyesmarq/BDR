@@ -2,7 +2,7 @@ import type { Task } from '@/types/crm';
 import TaskItem from './task-item';
 
 type TaskListProps = {
-  tasks: Task[];
+  tasks: (Task & { account?: { name: string } })[];
 };
 
 export default function TaskList({ tasks }: TaskListProps) {

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -47,6 +48,18 @@ export class AccountsController {
     @Body() dto: UpdateAccountDto,
   ): Promise<Account> {
     const account = await this.accountsService.update(user, id, dto);
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+    return account;
+  }
+
+  @Delete(':id')
+  async archive(
+    @CurrentUser() user: ClerkUser,
+    @Param('id') id: string,
+  ): Promise<Account> {
+    const account = await this.accountsService.archive(user, id);
     if (!account) {
       throw new NotFoundException('Account not found');
     }

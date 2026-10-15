@@ -16,6 +16,19 @@ export class TasksService {
     });
   }
 
+  findAllForRep(clerkUser: ClerkUser) {
+    return this.prisma.task.findMany({
+      where: {
+        account: {
+          user: { clerkId: clerkUser.id },
+          status: { not: 'archived' },
+        },
+      },
+      orderBy: { dueDate: 'asc' },
+      include: { account: { select: { name: true } } },
+    });
+  }
+
   async create(
     clerkUser: ClerkUser,
     accountId: string,

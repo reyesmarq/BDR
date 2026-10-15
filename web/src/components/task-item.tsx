@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
+import Link from 'next/link';
 import type { Task } from '@/types/crm';
 import { completeTask, updateTask } from '@/lib/tasks';
 
 type TaskItemProps = {
-  task: Task;
+  task: Task & { account?: { name: string } };
 };
 
 export default function TaskItem({ task }: TaskItemProps) {
@@ -134,6 +135,17 @@ export default function TaskItem({ task }: TaskItemProps) {
             dateStyle: 'medium',
             timeZone: 'UTC',
           })}
+          {task.account && (
+            <>
+              {' · '}
+              <Link
+                href={`/dashboard/accounts/${task.accountId}`}
+                className="text-teal-700 hover:text-teal-800"
+              >
+                {task.account.name}
+              </Link>
+            </>
+          )}
         </p>
         {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
       </div>

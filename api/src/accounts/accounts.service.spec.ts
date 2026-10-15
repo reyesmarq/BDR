@@ -49,7 +49,7 @@ describe('AccountsService', () => {
       },
     });
   });
-  it('lists accounts only for the signed-in rep, ordered by name', async () => {
+  it('lists non-archived accounts only for the signed-in rep, ordered by name', async () => {
     const found = [{ id: 'a1' }, { id: 'a2' }];
     const findMany = vi.fn().mockResolvedValue(found);
     const prisma = { account: { findMany } } as unknown as PrismaService;
@@ -59,7 +59,7 @@ describe('AccountsService', () => {
     const result = await service.findAll({ id: 'user_123' });
 
     expect(findMany).toHaveBeenCalledWith({
-      where: { user: { clerkId: 'user_123' } },
+      where: { user: { clerkId: 'user_123' }, status: { not: 'archived' } },
       orderBy: { name: 'asc' },
     });
     expect(result).toBe(found);
@@ -146,6 +146,47 @@ describe('AccountsService', () => {
       { id: 'user_123' },
       'other-rep-account',
       { name: 'New name' },
+    );
+
+    expect(update).not.toHaveBeenCalled();
+    expect(result).toBeNull();
+  });
+
+  it('archives an owned account by setting status to archived', async () => {
+    const findFirst = vi.fn().mockResolvedValue({ id: 'a1' });
+    const archived = { id: 'a1', status: 'archived' };
+    const update = vi.fn().mockResolvedValue(archived);
+    const prisma = {
+      account: { findFirst, update },
+    } as unknown as PrismaService;
+    const users = {} as unknown as UsersService;
+
+    const service = new AccountsService(prisma, users);
+    const result = await service.archive({ id: 'user_123' }, 'a1');
+
+    expect(findFirst).toHaveBeenCalledWith({
+      where: { id: 'a1', user: { clerkId: 'user_123' } },
+      select: { id: true },
+    });
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'a1' },
+      data: { status: 'archived' },
+    });
+    expect(result).toBe(archived);
+  });
+
+  it('returns null when archiving an account the rep does not own', async () => {
+    const findFirst = vi.fn().mockResolvedValue(null);
+    const update = vi.fn();
+    const prisma = {
+      account: { findFirst, update },
+    } as unknown as PrismaService;
+    const users = {} as unknown as UsersService;
+
+    const service = new AccountsService(prisma, users);
+    const result = await service.archive(
+      { id: 'user_123' },
+      'other-rep-account',
     );
 
     expect(update).not.toHaveBeenCalled();

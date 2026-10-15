@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import type { Account } from '@/types/crm';
-import { updateAccount } from '@/lib/accounts';
+import { archiveAccount, updateAccount } from '@/lib/accounts';
 
 type AccountHeaderProps = {
   account: Pick<Account, 'id' | 'name' | 'status'>;
@@ -14,6 +14,7 @@ export default function AccountHeader({ account }: AccountHeaderProps) {
   const router = useRouter();
   const { getToken } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [name, setName] = useState(account.name);
   const [status, setStatus] = useState(account.status);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +48,56 @@ export default function AccountHeader({ account }: AccountHeaderProps) {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  async function handleDelete() {
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      const token = await getToken();
+      if (!token) {
+        throw new Error('You must be signed in.');
+      }
+
+      await archiveAccount(token, account.id);
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.');
+      setIsSubmitting(false);
+    }
+  }
+
+  if (isConfirmingDelete) {
+    return (
+      <div className="mt-3 max-w-md space-y-3 rounded-lg border border-red-200 bg-red-50 p-4">
+        <p className="text-sm text-red-800">
+          Delete <span className="font-medium">{account.name}</span>? It will
+          no longer appear in your accounts list.
+        </p>
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={isSubmitting}
+            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSubmitting ? 'Deleting...' : 'Confirm delete'}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              setIsConfirmingDelete(false);
+            }}
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (isEditing) {
@@ -129,6 +180,13 @@ export default function AccountHeader({ account }: AccountHeaderProps) {
         className="rounded-lg border border-slate-300 px-3 py-1 text-sm font-medium text-slate-700 hover:bg-slate-50"
       >
         Edit
+      </button>
+      <button
+        type="button"
+        onClick={() => setIsConfirmingDelete(true)}
+        className="rounded-lg border border-slate-300 px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50"
+      >
+        Delete
       </button>
     </div>
   );
