@@ -2,9 +2,8 @@ import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 import AccountsFilter from '@/components/accounts-filter';
 import { getAccounts } from '@/lib/accounts';
-import { mockTasks } from '@/lib/mock-data';
 import TaskList from '@/components/task-list';
-import { getUpcomingTasks } from '@/lib/tasks';
+import { getMyTasks, getUpcomingTasks } from '@/lib/tasks';
 
 interface Me {
   id: string;
@@ -34,7 +33,8 @@ export default async function DashboardPage() {
   const token = await getToken();
   const me = token ? await fetchMe(token) : null;
   const accounts = token ? await getAccounts(token) : [];
-  const upcomingTasks = getUpcomingTasks(mockTasks);
+  const myTasks = token ? await getMyTasks(token) : [];
+  const upcomingTasks = getUpcomingTasks(myTasks);
 
   return (
     <main className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
         </Link>
       </div>
       <p className="mt-2 text-slate-600">Signed-in reps only.</p>
-      <p className="mt-4 text-sm text-slate-500">
+      <p className="mt-4 text-sm text-slate-600">
         {me
           ? `API confirms you as Clerk user ${me.id}.`
           : 'Could not verify your session with the API.'}

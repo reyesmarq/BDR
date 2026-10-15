@@ -61,6 +61,18 @@ export async function updateAccount(
   return parseAccountResponse(res, 'Failed to update account');
 }
 
+export async function archiveAccount(token: string, id: string): Promise<Account> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/accounts/${encodeURIComponent(id)}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+
+  return parseAccountResponse(res, 'Failed to delete account');
+}
+
 export async function getAccounts(token: string): Promise<Account[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/accounts`, {
     headers: { Authorization: `Bearer ${token}` },

@@ -2,6 +2,27 @@ import type { PrismaService } from '../prisma/prisma.service.js';
 import { TasksService } from './tasks.service.js';
 
 describe('TasksService', () => {
+  it('lists all tasks for the signed-in rep across their non-archived accounts', async () => {
+    const found = [{ id: 't1' }, { id: 't2' }];
+    const findMany = vi.fn().mockResolvedValue(found);
+    const prisma = { task: { findMany } } as unknown as PrismaService;
+
+    const service = new TasksService(prisma);
+    const result = service.findAllForRep({ id: 'user_123' });
+
+    expect(findMany).toHaveBeenCalledWith({
+      where: {
+        account: {
+          user: { clerkId: 'user_123' },
+          status: { not: 'archived' },
+        },
+      },
+      orderBy: { dueDate: 'asc' },
+      include: { account: { select: { name: true } } },
+    });
+    await expect(result).resolves.toBe(found);
+  });
+
   it('creates a task when the account is owned by the signed-in rep', async () => {
     const findFirst = vi.fn().mockResolvedValue({ id: 'a1' });
     const created = { id: 't1', accountId: 'a1', title: 'Call back' };

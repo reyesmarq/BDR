@@ -1,11 +1,24 @@
-import type { Task } from '@/types/crm';
+import type { Task, TaskWithAccount } from '@/types/crm';
 
-export function getUpcomingTasks(tasks: Task[]): Task[] {
+export function getUpcomingTasks<T extends Task>(tasks: T[]): T[] {
   return tasks
     .filter((task) => task.status === 'open')
     .sort(
       (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
     );
+}
+
+export async function getMyTasks(token: string): Promise<TaskWithAccount[]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tasks`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to load tasks');
+  }
+
+  return (await res.json()) as TaskWithAccount[];
 }
 
 export type TaskInput = {

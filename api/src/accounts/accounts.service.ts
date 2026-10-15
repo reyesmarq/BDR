@@ -27,7 +27,7 @@ export class AccountsService {
 
   findAll(clerkUser: ClerkUser): Promise<Account[]> {
     return this.prisma.account.findMany({
-      where: { user: { clerkId: clerkUser.id } },
+      where: { user: { clerkId: clerkUser.id }, status: { not: 'archived' } },
       orderBy: { name: 'asc' },
     });
   }
@@ -62,6 +62,21 @@ export class AccountsService {
         ...(dto.name !== undefined && { name: dto.name }),
         ...(dto.status !== undefined && { status: dto.status }),
       },
+    });
+  }
+
+  async archive(clerkUser: ClerkUser, id: string): Promise<Account | null> {
+    const owned = await this.prisma.account.findFirst({
+      where: { id, user: { clerkId: clerkUser.id } },
+      select: { id: true },
+    });
+    if (!owned) {
+      return null;
+    }
+
+    return this.prisma.account.update({
+      where: { id },
+      data: { status: 'archived' },
     });
   }
 }
